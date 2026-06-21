@@ -7,8 +7,20 @@ let currentJsUrl = null;
 const defaultCodes = {
     html: `<!DOCTYPE html>\n<html lang="ja">\n\n<head>\n    <meta charset="UTF-8">\n    <title>ここにはタイトルが入ります</title>\n    <link rel="stylesheet" href="style.css">\n</head>\n\n<body>\n\n    <h1>h1要素</h1>\n    <p>文章がここに入ります。</p>\n\n    <script src="script.js"></script>\n</body>\n\n</html>`,
     css: `body {\n    padding: 20px;\n    font-family: sans-serif;\n    background: #f0f0f0;\n}`,
-    js: `console.log("JavaScript Loaded!");`
+    js: `console.log("JavaScript Loaded!");`,
+    theme: `dark`
 };
+
+const savedTheme = localStorage.getItem('web_ide_theme') || 'dark';
+
+document.documentElement.setAttribute('data-theme', savedTheme);
+
+document.addEventListener('DOMContentLoaded', () => {
+    const themeBtn = document.getElementById('themeToggleBtn');
+    if (themeBtn) {
+        themeBtn.textContent = savedTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
+    }
+});
 
 require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
 
@@ -23,7 +35,7 @@ require(['vs/editor/editor.main'], function (monaco) {
 
     editor = monaco.editor.create(document.getElementById('editor-container'), {
         model: models.html,
-        theme: 'vs-dark',
+        theme: `vs-${savedTheme}`,
         automaticLayout: true,
         minimap: { enabled: false }
     });
@@ -85,4 +97,22 @@ function updatePreview() {
     localStorage.setItem('web_ide_js', jsCode);
 
     document.getElementById('saveStatus').textContent = "自動保存済:  " + new Date().toLocaleTimeString();
+}
+
+window.toggleTheme = function () {
+    const htmlTag = document.documentElement;
+    const themeBtn = document.getElementById('themeToggleBtn');
+
+    const currentTheme = htmlTag.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+    htmlTag.setAttribute('data-theme', newTheme);
+
+    themeBtn.textContent = newTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
+
+    if (editor) {
+        monaco.editor.setTheme(newTheme === 'dark' ? 'vs-dark' : 'vs');
+    }
+
+    localStorage.setItem('web_ide_theme', newTheme);
 }

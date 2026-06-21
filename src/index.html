@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <title>Simple HTML Web IDE with Hot Reload</title>
@@ -11,7 +11,8 @@
 
   <div class="header">
     <strong>Simple HTML Web IDE with Hot Reload</strong>
-    <a href="https://github.com/microsoft/monaco-editor" target="_blank" style="color: #888; font-size: 11px; text-decoration: none;">Powered by Monaco Editor</a>
+    <a href="https://github.com/microsoft/monaco-editor" target="_blank" id="credit">Powered by Monaco Editor</a>
+    <button class="theme-btn" id="themeToggleBtn" onclick="toggleTheme()">🌙 Dark</button>
     <span class="status" id="saveStatus">起動中...</span>
   </div>
 
