@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple HTML Web IDE with Hot Reload</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+</head>
+
+<body>
+
+  <div class="header">
+    <strong>Simple HTML Web IDE with Hot Reload</strong>
+    <a href="https://github.com/microsoft/monaco-editor" target="_blank" style="color: #888; font-size: 11px; text-decoration: none;">Powered by Monaco Editor</a>
+    <span class="status" id="saveStatus">起動中...</span>
+  </div>
+
+  <div class="workspace">
+    <div class="sidebar">
+      <div class="file-tab active" id="tab-html" onclick="switchFile('html')">
+        <span>index.html</span>
+        <button class="download-btn" onclick="downloadFile(event, 'html')" title="HTMLを保存">📥</button>
+      </div>
+      <div class="file-tab" id="tab-css" onclick="switchFile('css')">
+        <span>style.css</span>
+        <button class="download-btn" onclick="downloadFile(event, 'css')" title="CSSを保存">📥</button>
+      </div>
+      <div class="file-tab" id="tab-js" onclick="switchFile('js')">
+        <span>script.js</span>
+        <button class="download-btn" onclick="downloadFile(event, 'js')" title="JSを保存">📥</button>
+      </div>
+    </div>
+
+    <div id="editor-container"></div>
+
+    <div class="preview-container">
+      <iframe id="preview"></iframe>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
