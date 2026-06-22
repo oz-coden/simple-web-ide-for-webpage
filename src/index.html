@@ -1,45 +1,55 @@
 <!DOCTYPE html>
-<html lang="ja" data-theme="dark">
+<html lang="ja">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Simple HTML Web IDE with Hot Reload</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple HTML Web IDE with Hot Reload</title>
+    <script>
+        (function () {
+            var theme = localStorage.getItem('oz_tools_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="common.js" defer></script>
+    <script src="script.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
 </head>
 
 <body>
 
-  <div class="header">
-    <strong>Simple HTML Web IDE with Hot Reload</strong>
-    <a href="https://github.com/microsoft/monaco-editor" target="_blank" id="credit">Powered by Monaco Editor</a>
-    <button class="theme-btn" id="themeToggleBtn" onclick="toggleTheme()">🌙 Dark</button>
-    <span class="status" id="saveStatus">起動中...</span>
-  </div>
-
-  <div class="workspace">
-    <div class="sidebar">
-      <div class="file-tab active" id="tab-html" onclick="switchFile('html')">
-        <span>index.html</span>
-        <button class="download-btn" onclick="downloadFile(event, 'html')" title="HTMLを保存">📥</button>
-      </div>
-      <div class="file-tab" id="tab-css" onclick="switchFile('css')">
-        <span>style.css</span>
-        <button class="download-btn" onclick="downloadFile(event, 'css')" title="CSSを保存">📥</button>
-      </div>
-      <div class="file-tab" id="tab-js" onclick="switchFile('js')">
-        <span>script.js</span>
-        <button class="download-btn" onclick="downloadFile(event, 'js')" title="JSを保存">📥</button>
-      </div>
+    <div class="header">
+        <strong>Simple HTML Web IDE with Hot Reload</strong>
+        <a href="https://github.com/microsoft/monaco-editor" target="_blank" id="credit">Powered by Monaco Editor</a>
+        <button class="theme-toggle-btn" aria-label="テーマ切り替え">🌙</button>
+        <span class="status" id="saveStatus">起動中...</span>
     </div>
 
-    <div id="editor-container"></div>
+    <div class="workspace">
+        <div class="sidebar">
+            <div class="file-tab active" id="tab-html" onclick="switchFile('html')">
+                <span>index.html</span>
+                <button class="download-btn" onclick="downloadFile(event, 'html')" title="HTMLを保存">📥</button>
+            </div>
+            <div class="file-tab" id="tab-css" onclick="switchFile('css')">
+                <span>style.css</span>
+                <button class="download-btn" onclick="downloadFile(event, 'css')" title="CSSを保存">📥</button>
+            </div>
+            <div class="file-tab" id="tab-js" onclick="switchFile('js')">
+                <span>script.js</span>
+                <button class="download-btn" onclick="downloadFile(event, 'js')" title="JSを保存">📥</button>
+            </div>
+        </div>
 
-    <div class="preview-container">
-      <iframe id="preview"></iframe>
+        <div id="editor-container"></div>
+
+        <div class="preview-container">
+            <iframe id="preview"></iframe>
+        </div>
     </div>
-  </div>
 
-  <script src="script.js"></script>
 </body>
 
 </html>
