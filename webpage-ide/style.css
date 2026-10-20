@@ -1,5 +1,4 @@
 :root {
-    --ide-tab-active-text-light: #000000;
     --ide-tab-hover-bg: #e5e5e5;
     --ide-btn-hover-bg: #d4d4d4;
 }
@@ -11,6 +10,7 @@
 
 body {
     height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -22,6 +22,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
     border-bottom: 1px solid var(--c-border);
     font-size: 14px;
     transition: background-color 0.3s;
@@ -35,11 +37,11 @@ body {
 .workspace {
     display: flex;
     flex-grow: 1;
-    height: calc(100vh - 40px);
+    min-height: 0;
 }
 
 .sidebar {
-    width: 200px;
+    flex: 0 0 170px;
     background-color: var(--c-bg-main);
     border-right: 1px solid var(--c-border);
     padding-top: 10px;
@@ -51,7 +53,6 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 8px 15px;
-    cursor: pointer;
     font-size: 14px;
     color: var(--c-text-sub);
 }
@@ -66,6 +67,18 @@ body {
     color: var(--c-text-main);
     border-left: 3px solid var(--c-accent);
     font-weight: bold;
+}
+
+.file-select {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    padding: 4px 0;
 }
 
 .download-btn {
@@ -83,9 +96,20 @@ body {
     color: var(--c-text-main);
 }
 
-#editor-container {
+button:focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 2px;
+}
+
+#editor-container, .preview-container {
     flex: 1;
+    min-width: 0;
+    min-height: 0;
+}
+
+#editor-container {
     background-color: var(--c-bg-card);
+    overflow: hidden;
 }
 
 #credit {
@@ -96,7 +120,6 @@ body {
 }
 
 .preview-container {
-    flex: 1;
     border-left: 2px solid var(--c-border);
     display: flex;
     flex-direction: column;
@@ -105,34 +128,17 @@ body {
 
 iframe {
     flex-grow: 1;
+    min-height: 0;
+    height: 100%;
     width: 100%;
     border: none;
     background-color: #ffffff;
 }
-body { height: 100dvh; }
-.header { gap: 12px; flex-wrap: wrap; }
-.workspace { min-height: 0; height: auto; }
-.sidebar { flex: 0 0 170px; }
-#editor-container, .preview-container { min-width: 0; min-height: 0; }
-.file-select {
-    flex: 1;
-    min-width: 0;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-    padding: 4px 0;
-}
-button:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
-iframe { min-height: 0; height: 100%; }
+
 @media (max-width: 760px) {
     .workspace { flex-direction: column; }
-    .sidebar { display: flex; flex: 0 0 auto; width: auto; padding: 0; border-right: 0; }
+    .sidebar { display: flex; flex: 0 0 auto; padding: 0; border-right: 0; }
     .file-tab { flex: 1; padding: 6px; min-width: 0; gap: 4px; }
-    #editor-container { flex: 1; }
-    .preview-container { flex: 1; border-left: 0; border-top: 2px solid var(--c-border); }
+    .preview-container { border-left: 0; border-top: 2px solid var(--c-border); }
     #credit { margin: 0; }
 }
-#editor-container { overflow: hidden; }

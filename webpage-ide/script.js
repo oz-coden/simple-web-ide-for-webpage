@@ -6,6 +6,7 @@ const viewStates = {};
 let currentFileType = 'html';
 let previewTimer;
 let storageReadable = true;
+const unsavedFiles = new Set();
 
 const defaultCodes = {
     html: `<!DOCTYPE html>\n<html lang="ja">\n\n<head>\n    <meta charset="UTF-8">\n    <title>ここにはタイトルが入ります</title>\n    <link rel="stylesheet" href="style.css">\n</head>\n\n<body>\n\n    <h1>h1要素</h1>\n    <p>文章がここに入ります。</p>\n\n    <script src="script.js"></script>\n</body>\n\n</html>`,
@@ -23,17 +24,21 @@ function readCode(type) {
     }
 }
 
-function saveCode() {
+function saveCode(fileType) {
     const status = document.getElementById('saveStatus');
     try {
-        for (const type of Object.keys(models)) {
-            localStorage.setItem(`web_ide_${type}`, models[type].getValue());
-        }
+        // A full or unavailable storage entry must not block other files.
+        localStorage.setItem(`web_ide_${fileType}`, models[fileType].getValue());
+        unsavedFiles.delete(fileType);
+    } catch (_) {
+        unsavedFiles.add(fileType);
+    }
+    if (unsavedFiles.size) {
+        status.textContent = '自動保存できません。未保存のコードをダウンロードしてください。';
+    } else {
         status.textContent = storageReadable
             ? '自動保存済: ' + new Date().toLocaleTimeString()
             : '以前の保存内容を読み込めませんでした。必要なコードをダウンロードしてください。';
-    } catch (_) {
-        status.textContent = '自動保存できません。コードをダウンロードしてください。';
     }
 }
 
@@ -44,9 +49,9 @@ function updatePreview() {
     );
 }
 
-function onCodeChanged() {
+function onCodeChanged(fileType) {
     // Persist immediately; only the expensive iframe reload is debounced.
-    saveCode();
+    saveCode(fileType);
     clearTimeout(previewTimer);
     previewTimer = setTimeout(updatePreview, 250);
 }
@@ -74,7 +79,9 @@ if (typeof require !== 'function' || typeof require.config !== 'function') {
             automaticLayout: true,
             minimap: { enabled: false }
         });
-        Object.values(models).forEach(model => model.onDidChangeContent(onCodeChanged));
+        Object.entries(models).forEach(([fileType, model]) => {
+            model.onDidChangeContent(() => onCodeChanged(fileType));
+        });
         // Do not overwrite stored drafts merely by opening the editor.
         document.getElementById('saveStatus').textContent = storageReadable
             ? '編集内容はこのブラウザに自動保存されます'

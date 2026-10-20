@@ -112,6 +112,32 @@ const server = createServer(async (req, res) => {
             assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
             await context.close();
         });
+        await check('one failed file save does not block other files or hide unsaved changes', async () => {
+            const { context, page } = await setup();
+            await page.evaluate(() => {
+                window.rejectCssSave = true;
+                const originalSetItem = Storage.prototype.setItem;
+                Storage.prototype.setItem = function (key, value) {
+                    if (key === 'web_ide_css' && window.rejectCssSave) {
+                        throw new DOMException('Full', 'QuotaExceededError');
+                    }
+                    return originalSetItem.call(this, key, value);
+                };
+                models.css.setValue('body { color: blue; }');
+                models.js.setValue('document.body.dataset.saved = "yes";');
+            });
+            assert.equal(await page.evaluate(() => localStorage.getItem('web_ide_js')), 'document.body.dataset.saved = "yes";');
+            assert.match(await page.getByRole('status').innerText(), /自動保存できません/);
+            await page.evaluate(() => {
+                window.rejectCssSave = false;
+                models.html.setValue('<h1>未保存のCSSが残っています</h1>');
+            });
+            assert.match(await page.getByRole('status').innerText(), /自動保存できません/);
+            await page.evaluate(() => models.css.setValue('body { color: green; }'));
+            assert.equal(await page.evaluate(() => localStorage.getItem('web_ide_css')), 'body { color: green; }');
+            assert.match(await page.getByRole('status').innerText(), /自動保存済/);
+            await context.close();
+        });
         await check('missing CDN loader produces a useful error', async () => {
             const { context, page } = await setup(false, true);
             await page.getByRole('status').filter({ hasText: 'エディタを読み込めません' }).waitFor();
