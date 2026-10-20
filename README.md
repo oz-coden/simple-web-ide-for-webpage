@@ -1,6 +1,6 @@
 # Simple Web IDE For Webpage
 
-Japanese section is [available](#目次) in below this section.
+日本語の説明は[目次](#目次)から読めます。
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ Japanese section is [available](#目次) in below this section.
 This is a simple, easy-to-use development environment for creating web pages that run in a browser.  
 All the code you write is stored on the client side.  
 
-[Playground Is Here!](https://oz-coden.github.io/tools/webpage-ide/)
+[Playground Is Here!](https://tools.oz-coden.com/webpage-ide/)
 
 ## Background of Development
 
@@ -46,7 +46,19 @@ You can also download the code.
 
 ## Installation
 
-Just download the files from this repository, place them in the same folder, and open the HTML file in your browser.
+1. Clone or download this repository, keeping the directory structure intact.
+2. Run `python -m http.server 8000` from the repository root (Python 3 is required for this command).
+3. Open `http://localhost:8000/webpage-ide/` in your browser.
+
+The application files are in `webpage-ide/`. Monaco Editor 0.45.0 is loaded from cdnjs, so an internet connection is required. GitHub Pages can publish the `main` branch from `/ (root)`; the root page redirects to `webpage-ide/`.
+
+HTML references to `style.css` / `./style.css` and `script.js` / `./script.js` use the corresponding editor contents, including optional query strings or fragments. Download all three files into the same directory to run the exported page. Other relative assets and relative JavaScript module imports are not provided by the editor.
+
+The preview runs in a sandbox with scripts, forms and dialogs enabled. It cannot access the editor DOM or browser storage, navigate the top-level page, or open popups. External resources can still make network requests. Infinite loops can still make the page unresponsive.
+
+Drafts are stored only in this browser and origin; they do not move automatically between domains. If browser storage is unavailable or full, editing and previews remain available and the status asks you to download your code.
+
+To run browser regression checks, install Node.js 22 or later, then run `npm ci`, `npx playwright install chromium`, and `npm test` from the repository root. The tests use the same Monaco release from npm to avoid depending on CDN availability.
 
 ## LICENSE
 
@@ -76,7 +88,7 @@ Copyright (c) Microsoft Corporation.
 これは、ブラウザ上で動作する、ウェブページを作成するためのシンプルで使いやすい開発環境です。  
 作成したコードはすべてクライアント側に保存されます。 
 
-[Playgroundはこちら！](https://oz-coden.github.io/tools/webpage-ide/)
+[Playgroundはこちら！](https://tools.oz-coden.com/webpage-ide/)
 
 ## 開発背景
 
@@ -105,7 +117,19 @@ HTMLに加え、CSSとJavaScriptに対応した3つの基本ファイルも編�
 
 ## 導入方法
 
-このリポジトリにあるファイルをダウンロードして同じフォルダ内に配置し、HTMLファイルをブラウザで開くだけ。
+1. このリポジトリをクローンまたはダウンロードし、フォルダ構成を保ちます。
+2. リポジトリのルートで `python -m http.server 8000` を実行します（このコマンドにはPython 3が必要です）。
+3. ブラウザで `http://localhost:8000/webpage-ide/` を開きます。
+
+アプリ本体は `webpage-ide/` にあります。Monaco Editor 0.45.0をcdnjsから読み込むため、インターネット接続が必要です。GitHub Pagesでは `main` ブランチの `/ (root)` を公開元に指定できます。ルートページから `webpage-ide/` へ移動します。
+
+HTML内の `style.css` / `./style.css` と `script.js` / `./script.js` は、それぞれの編集内容を参照します。クエリ文字列やフラグメントも付けられます。書き出したページを動かす場合は、3ファイルを同じフォルダに保存してください。その他の相対パスの素材や、JavaScriptモジュールの相対インポートには対応していません。
+
+プレビューはスクリプト・フォーム・ダイアログを許可したサンドボックス内で実行されます。エディタのDOMやブラウザの保存領域へのアクセス、親画面の遷移、ポップアップは制限されます。外部リソースへの通信は発生し得ます。また、無限ループによってページが応答しなくなる場合があります。
+
+下書きは利用中のブラウザ・オリジンに保存され、別のドメインには自動で移りません。保存領域が利用できない場合や容量不足の場合も編集・プレビューは使えます。保存状態に従ってコードをダウンロードしてください。
+
+ブラウザの回帰チェックを実行する場合は、Node.js 22以降を導入し、リポジトリのルートで `npm ci`、`npx playwright install chromium`、`npm test` を順に実行します。テストではCDNの稼働状況に依存しないように、同じバージョンのMonacoをnpmから読み込みます。
 
 ## ライセンス
 

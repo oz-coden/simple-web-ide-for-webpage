@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple HTML Web IDE with Hot Reload</title>
+    <script>
+        (function () {
+            var theme = 'light';
+            try { theme = localStorage.getItem('oz_tools_theme') === 'dark' ? 'dark' : 'light'; } catch (_) {}
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="common.js" defer></script>
+    <script src="preview.js" defer></script>
+    <script src="script.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+</head>
+
+<body>
+
+    <div class="header">
+        <strong>Simple HTML Web IDE with Hot Reload</strong>
+        <a href="https://github.com/microsoft/monaco-editor" target="_blank" rel="noopener noreferrer" id="credit">Powered by Monaco Editor</a>
+        <button class="theme-toggle-btn" aria-label="テーマ切り替え">🌙</button>
+        <span class="status" id="saveStatus" role="status">起動中...</span>
+    </div>
+
+    <div class="workspace">
+        <div class="sidebar">
+            <div class="file-tab active" id="tab-html">
+                <button class="file-select" onclick="switchFile('html')" aria-pressed="true">index.html</button>
+                <button class="download-btn" onclick="downloadFile(event, 'html')" title="HTMLを保存">📥</button>
+            </div>
+            <div class="file-tab" id="tab-css">
+                <button class="file-select" onclick="switchFile('css')" aria-pressed="false">style.css</button>
+                <button class="download-btn" onclick="downloadFile(event, 'css')" title="CSSを保存">📥</button>
+            </div>
+            <div class="file-tab" id="tab-js">
+                <button class="file-select" onclick="switchFile('js')" aria-pressed="false">script.js</button>
+                <button class="download-btn" onclick="downloadFile(event, 'js')" title="JSを保存">📥</button>
+            </div>
+        </div>
+
+        <div id="editor-container"></div>
+
+        <div class="preview-container">
+            <iframe id="preview" title="編集中のページのプレビュー" sandbox="allow-scripts allow-forms allow-modals" referrerpolicy="no-referrer"></iframe>
+        </div>
+    </div>
+
+</body>
+
+</html>
