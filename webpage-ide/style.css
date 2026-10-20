@@ -16,9 +16,9 @@ body {
     overflow: hidden;
 }
 
-.header {
+.ide-toolbar {
     background-color: var(--c-bg-main);
-    padding: 10px 15px;
+    padding: 8px 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -142,3 +142,5 @@ iframe {
     .preview-container { border-left: 0; border-top: 2px solid var(--c-border); }
     #credit { margin: 0; }
 }
+
+.ide-toolbar h1 { font-size: 1rem; margin: 0; }

@@ -50,7 +50,7 @@ You can also download the code.
 2. Run `python -m http.server 8000` from the repository root (Python 3 is required for this command).
 3. Open `http://localhost:8000/webpage-ide/` in your browser.
 
-The application files are in `webpage-ide/`. Monaco Editor 0.45.0 is loaded from cdnjs, so an internet connection is required. For GitHub Pages, select **GitHub Actions** as the publishing source. After the browser checks pass on `main`, the workflow publishes the static application files. The root page redirects to `webpage-ide/`.
+The application files are in `webpage-ide/`. Monaco Editor 0.45.0 is loaded from cdnjs, so an internet connection is required. The application is published through [tools.oz-coden.com](https://github.com/oz-coden/tools.oz-coden.com). This repository checks the browser behavior on each update. The root page redirects to `webpage-ide/`. Shared styles, navigation and themes are included in `webpage-ide/vendor/ui/`, with their source revision recorded in `webpage-ide/shared-ui.json`.
 
 HTML references to `style.css` / `./style.css` and `script.js` / `./script.js` use the corresponding editor contents, including optional query strings or fragments. Download all three files into the same directory to run the exported page. Other relative assets and relative JavaScript module imports are not provided by the editor.
 
@@ -121,7 +121,7 @@ HTMLに加え、CSSとJavaScriptに対応した3つの基本ファイルも編�
 2. リポジトリのルートで `python -m http.server 8000` を実行します（このコマンドにはPython 3が必要です）。
 3. ブラウザで `http://localhost:8000/webpage-ide/` を開きます。
 
-アプリ本体は `webpage-ide/` にあります。Monaco Editor 0.45.0をcdnjsから読み込むため、インターネット接続が必要です。GitHub Pagesでは公開元に **GitHub Actions** を指定します。ワークフローは `main` のブラウザ検査が成功した後にアプリの静的ファイルを公開します。ルートページから `webpage-ide/` へ移動します。
+アプリ本体は `webpage-ide/` にあります。Monaco Editor 0.45.0をcdnjsから読み込むため、インターネット接続が必要です。アプリの公開は [tools.oz-coden.com](https://github.com/oz-coden/tools.oz-coden.com) で行います。このリポジトリでは更新ごとにブラウザの動作を検査します。ルートページから `webpage-ide/` へ移動します。共通のスタイル・ナビゲーション・テーマ切替は `webpage-ide/vendor/ui/` に同梱し、取得元のコミットを `webpage-ide/shared-ui.json` に記録しています。
 
 HTML内の `style.css` / `./style.css` と `script.js` / `./script.js` は、それぞれの編集内容を参照します。クエリ文字列やフラグメントも付けられます。書き出したページを動かす場合は、3ファイルを同じフォルダに保存してください。その他の相対パスの素材や、JavaScriptモジュールの相対インポートには対応していません。
 

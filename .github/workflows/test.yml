@@ -1,4 +1,4 @@
-name: Browser checks and Pages publication
+name: Browser regression checks
 on:
   push:
     branches: [main]
@@ -19,32 +19,3 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm test
-  publish:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    needs: browser
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    concurrency:
-      group: github-pages
-      cancel-in-progress: false
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/configure-pages@v5
-      - name: Stage public files
-        run: |
-          mkdir _site
-          cp index.html CNAME LICENSE .nojekyll _site/
-          cp -R webpage-ide src _site/
-      - uses: actions/upload-pages-artifact@v4
-        with:
-          path: _site
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
