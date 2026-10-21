@@ -4,13 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple HTML Web IDE with Hot Reload</title>
+    <meta name="description" content="HTML・CSS・JavaScriptをブラウザで編集。手動プレビュー、ZIP保存、初期化と保存内容の復旧に対応。">
+    <title>Web IDE | oz-coden tools</title>
     <script src="vendor/ui/ui.js"></script>
     <link rel="stylesheet" href="vendor/ui/ui.css">
     <link rel="stylesheet" href="style.css">
+    <script src="archive.js" defer></script>
+    <script src="files.js" defer></script>
     <script src="preview.js" defer></script>
     <script src="script.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
 </head>
 
 <body>
@@ -18,35 +20,52 @@
     <header class="ui-header" data-ui-header data-title="Web IDE" data-source="https://github.com/oz-coden/simple-web-ide-for-webpage">
         <a class="ui-brand" href="https://tools.oz-coden.com/">oz-coden tools</a>
     </header>
+    <main class="ide-main" aria-label="Webページの編集">
     <div class="ide-toolbar">
         <h1>Web IDE</h1>
         <a href="https://github.com/microsoft/monaco-editor" target="_blank" rel="noopener noreferrer" id="credit">Powered by Monaco Editor</a>
         <span class="status" id="saveStatus" role="status">起動中...</span>
     </div>
 
+    <div class="ide-actions" aria-label="実行と保存">
+        <button id="run-preview" class="ui-button ui-button-primary" disabled>プレビューを実行</button>
+        <button id="stop-preview" class="ui-button">停止</button>
+        <label class="auto-preview"><input id="auto-preview" type="checkbox" disabled>編集時に自動実行</label>
+        <button id="save-all" class="ui-button">3ファイルをZIP保存</button>
+        <button id="reset-drafts" class="ui-button" disabled>初期コードに戻す</button>
+        <a class="ui-button" href="recovery.html">保存内容の復旧</a>
+    </div>
+    <p id="preview-status" class="preview-status" aria-live="polite">プレビューは停止中です。保存済みコードも起動時には実行しません。</p>
     <div class="workspace">
         <div class="sidebar">
             <div class="file-tab active" id="tab-html">
                 <button class="file-select" onclick="switchFile('html')" aria-pressed="true">index.html</button>
-                <button class="download-btn" onclick="downloadFile(event, 'html')" title="HTMLを保存" aria-label="HTMLを保存">📥</button>
+                <button class="download-btn" onclick="downloadFile(event, 'html')" title="HTMLを保存" aria-label="HTMLを保存"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg></button>
             </div>
             <div class="file-tab" id="tab-css">
                 <button class="file-select" onclick="switchFile('css')" aria-pressed="false">style.css</button>
-                <button class="download-btn" onclick="downloadFile(event, 'css')" title="CSSを保存" aria-label="CSSを保存">📥</button>
+                <button class="download-btn" onclick="downloadFile(event, 'css')" title="CSSを保存" aria-label="CSSを保存"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg></button>
             </div>
             <div class="file-tab" id="tab-js">
                 <button class="file-select" onclick="switchFile('js')" aria-pressed="false">script.js</button>
-                <button class="download-btn" onclick="downloadFile(event, 'js')" title="JSを保存" aria-label="JSを保存">📥</button>
+                <button class="download-btn" onclick="downloadFile(event, 'js')" title="JSを保存" aria-label="JSを保存"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg></button>
             </div>
         </div>
 
         <div id="editor-container"></div>
 
         <div class="preview-container">
-            <iframe id="preview" title="編集中のページのプレビュー" sandbox="allow-scripts allow-forms allow-modals" referrerpolicy="no-referrer"></iframe>
+            <div id="preview-paused" class="preview-paused"><strong>プレビューは停止中です</strong><p>「プレビューを実行」で現在のコードを動かします。</p><p>応答しなくなった場合は、このタブを閉じて<a href="recovery.html" target="_blank" rel="noopener">復旧ページ</a>を開いてください。</p></div>
+            <iframe hidden id="preview" title="編集中のページのプレビュー" sandbox="allow-scripts allow-forms allow-modals" referrerpolicy="no-referrer"></iframe>
         </div>
     </div>
 
+    </main>
+    <dialog id="reset-dialog" class="ui-dialog" aria-labelledby="reset-heading">
+        <h2 id="reset-heading">3ファイルを初期コードに戻しますか？</h2>
+        <p>HTML・CSS・JavaScriptの編集内容と保存内容を置き換えます。必要なコードは先にZIP保存してください。</p>
+        <div class="ui-actions"><button id="reset-cancel" class="btn-cancel" autofocus>キャンセル</button><button id="reset-confirm" class="btn-danger">初期コードに戻す</button></div>
+    </dialog>
 </body>
 
 </html>

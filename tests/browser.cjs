@@ -3,6 +3,7 @@ const { createServer } = require('node:http');
 const { readFile } = require('node:fs/promises');
 const path = require('node:path');
 const { chromium } = require('playwright');
+const { unzipSync, strFromU8 } = require('fflate');
 
 const root = path.resolve(__dirname, '..');
 const monacoRoot = path.dirname(require.resolve('monaco-editor/package.json'));
@@ -25,7 +26,7 @@ const server = createServer(async (req, res) => {
     const browser = await chromium.launch(process.env.BROWSER_EXECUTABLE_PATH ? { executablePath: process.env.BROWSER_EXECUTABLE_PATH, args: ['--no-sandbox', '--disable-dev-shm-usage'] } : {});
     let passed = 0;
     async function check(name, run) { await run(); console.log(`PASS ${name}`); passed++; }
-    async function setup(blockStorage = false, blockLoader = false) {
+    async function setup(blockStorage = false, blockLoader = false, runPreview = true) {
         const context = await browser.newContext();
         const page = await context.newPage();
         await page.route('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/**', async route => {
@@ -39,7 +40,12 @@ const server = createServer(async (req, res) => {
             Storage.prototype.setItem = () => { throw new DOMException('Blocked', 'QuotaExceededError'); };
         });
         await page.goto(base);
-        if (!blockLoader) await page.waitForFunction(() => typeof editor !== 'undefined' && editor);
+        await page.waitForURL('**/webpage-ide/');
+        await page.locator('#save-all').waitFor();
+        if (!blockLoader) {
+            await page.waitForFunction(() => typeof editor !== 'undefined' && editor);
+            if (runPreview) await page.locator('#auto-preview').check();
+        }
         return { context, page };
     }
     try {
@@ -97,6 +103,7 @@ const server = createServer(async (req, res) => {
             await page.reload();
             await page.waitForFunction(() => typeof editor !== 'undefined' && editor);
             assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
+            await page.getByRole('button', { name: 'プレビューを実行', exact: true }).click();
             await page.setViewportSize({ width: 390, height: 844 });
             assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
             assert.ok((await page.locator('#editor-container').boundingBox()).height > 100);
@@ -141,6 +148,63 @@ const server = createServer(async (req, res) => {
         await check('missing CDN loader produces a useful error', async () => {
             const { context, page } = await setup(false, true);
             await page.getByRole('status').filter({ hasText: 'エディタを読み込めません' }).waitFor();
+            await context.close();
+        });
+        await check('restored looping drafts remain editable and do not run after reload', async () => {
+            const { context, page } = await setup(false, false, false);
+            await page.evaluate(() => { models.html.setValue('<script src="script.js"></script>'); models.js.setValue('while (true) {}'); });
+            await page.reload();
+            await page.waitForFunction(() => typeof editor !== 'undefined' && editor);
+            assert.equal(await page.locator('#auto-preview').isChecked(), false);
+            assert.equal(await page.locator('#preview').isVisible(), false);
+            assert.equal(await page.evaluate(() => models.js.getValue()), 'while (true) {}');
+            await page.evaluate(() => models.js.setValue('document.documentElement.dataset.recovered = "yes";'));
+            await page.getByRole('button', { name: 'プレビューを実行', exact: true }).click();
+            await page.frameLocator('#preview').locator('html[data-recovered="yes"]').waitFor();
+            await context.close();
+        });
+        await check('ZIP export preserves current files, Unicode and empty content', async () => {
+            const { context, page } = await setup(false, false, false);
+            const expected = { 'index.html': '<h1>日本語 😀</h1>', 'style.css': '', 'script.js': 'console.log("saved");' };
+            await page.evaluate(v => { models.html.setValue(v['index.html']); models.css.setValue(v['style.css']); models.js.setValue(v['script.js']); }, expected);
+            const event = page.waitForEvent('download');
+            await page.getByRole('button', { name: '3ファイルをZIP保存', exact: true }).click();
+            const file = await event;
+            assert.equal(file.suggestedFilename(), 'webpage-source.zip');
+            const files = unzipSync(new Uint8Array(await readFile(await file.path())));
+            assert.deepEqual(Object.fromEntries(Object.entries(files).map(([name, data]) => [name, strFromU8(data)])), expected);
+            await context.close();
+        });
+        await check('reset requires confirmation and keeps preview stopped and unrelated storage intact', async () => {
+            const { context, page } = await setup(false, false, false);
+            await page.evaluate(() => { localStorage.setItem('unrelated', 'keep'); models.html.setValue('edited'); });
+            await page.locator('#reset-drafts').click(); await page.locator('#reset-cancel').click();
+            assert.equal(await page.evaluate(() => models.html.getValue()), 'edited');
+            await page.locator('#reset-drafts').click(); await page.locator('#reset-confirm').click();
+            assert.equal(await page.evaluate(() => models.html.getValue() === IdeFiles.defaults.html), true);
+            assert.equal(await page.evaluate(() => localStorage.getItem('unrelated')), 'keep');
+            assert.equal(await page.locator('#preview').isVisible(), false);
+            await page.reload(); await page.waitForFunction(() => typeof editor !== 'undefined' && editor);
+            assert.equal(await page.evaluate(() => models.html.getValue() === IdeFiles.defaults.html), true);
+            await context.close();
+        });
+        await check('recovery works without CDN, exports inert drafts and resets only IDE keys', async () => {
+            const { context, page } = await setup(false, true);
+            await page.evaluate(() => {
+                localStorage.setItem('web_ide_html', '<script>while(true){}</script>');
+                localStorage.setItem('web_ide_css', '/* 日本語 */'); localStorage.setItem('web_ide_js', 'while (true) {}');
+                localStorage.setItem('oz_tools_theme', 'dark');
+            });
+            await page.goto(base + '/webpage-ide/recovery.html');
+            assert.equal(await page.locator('iframe').count(), 0);
+            assert.equal(await page.locator('#saved-html').inputValue(), '<script>while(true){}</script>');
+            const event = page.waitForEvent('download'); await page.locator('#save-all').click();
+            const files = unzipSync(new Uint8Array(await readFile(await (await event).path())));
+            assert.equal(strFromU8(files['script.js']), 'while (true) {}');
+            assert.equal(strFromU8(files['style.css']), '/* 日本語 */');
+            await page.locator('#reset-drafts').click(); await page.locator('#reset-confirm').click();
+            assert.equal(await page.evaluate(() => localStorage.getItem('web_ide_html')), null);
+            assert.equal(await page.evaluate(() => localStorage.getItem('oz_tools_theme')), 'dark');
             await context.close();
         });
         console.log(`${passed} browser regression checks passed`);

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
+    <title>Web IDE 保存内容の復旧 | oz-coden tools</title>
+    <script src="vendor/ui/ui.js"></script>
+    <link rel="stylesheet" href="vendor/ui/ui.css">
+    <link rel="stylesheet" href="recovery.css">
+    <script src="archive.js" defer></script>
+    <script src="files.js" defer></script>
+    <script src="recovery.js" defer></script>
+</head>
+<body>
+    <header class="ui-header" data-ui-header data-title="Web IDE 保存内容の復旧" data-source="https://github.com/oz-coden/simple-web-ide-for-webpage"><a class="ui-brand" href="https://tools.oz-coden.com/">oz-coden tools</a></header>
+    <main class="ui-main">
+        <div class="ui-heading"><p class="ui-eyebrow">WEB IDE</p><h1>保存内容の復旧</h1><p class="ui-description">プレビューやMonacoを起動せず、このブラウザに保存された3ファイルを取り出します。</p></div>
+        <section class="ui-panel"><h2>保存と初期化</h2><p>プレビューで応答しなくなったタブは閉じてから操作してください。保存済みコードはこのページでは実行されません。</p><div class="ui-actions"><button id="save-all" class="btn-primary">3ファイルをZIP保存</button><button id="reset-drafts" class="btn-cancel">保存内容を初期化</button><a class="ui-button" href="./">エディタを開く</a></div><p id="recovery-status" class="ui-status" role="status"></p></section>
+    <section class="ui-panel"><div class="ui-between"><label for="saved-html">index.html</label><button id="save-html" class="btn-copy">index.htmlを保存</button></div><textarea id="saved-html" readonly spellcheck="false"></textarea></section>
+    <section class="ui-panel"><div class="ui-between"><label for="saved-css">style.css</label><button id="save-css" class="btn-copy">style.cssを保存</button></div><textarea id="saved-css" readonly spellcheck="false"></textarea></section>
+    <section class="ui-panel"><div class="ui-between"><label for="saved-js">script.js</label><button id="save-js" class="btn-copy">script.jsを保存</button></div><textarea id="saved-js" readonly spellcheck="false"></textarea></section>
+    </main>
+    <dialog id="reset-dialog" class="ui-dialog" aria-labelledby="reset-heading"><h2 id="reset-heading">保存内容を初期化しますか？</h2><p>このWeb IDEの3ファイルの保存内容を削除します。必要なコードは先にZIP保存してください。次回は初期コードで開きます。</p><div class="ui-actions"><button id="reset-cancel" class="btn-cancel" autofocus>キャンセル</button><button id="reset-confirm" class="btn-danger">保存内容を初期化</button></div></dialog>
+</body>
+</html>
