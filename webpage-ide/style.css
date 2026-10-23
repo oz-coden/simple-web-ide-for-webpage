@@ -129,7 +129,7 @@ button:focus-visible {
     border-left: 2px solid var(--c-border);
     display: flex;
     flex-direction: column;
-    background-color: #ffffff;
+    background-color: var(--c-bg-card);
 }
 
 iframe {
